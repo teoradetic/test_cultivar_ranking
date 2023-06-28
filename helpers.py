@@ -117,23 +117,35 @@ def weighted_rank(df_rank, metric_type, weights=None):
 def weighted_overall_rank(list_df_ranks, list_df_weights):
     """Computes overall rank for a given trial ID. The weights are selected by the user via st."""
     df_rank = pd.DataFrame()
+
+    # edge condition: no ranking weights chosen
+    if sum(list_df_weights) == 0:
+        df_rank = list_df_ranks[0]
+        df_rank = df_rank[['cultivar']]
+        df_rank['overall_rank'] = 0
+        return df_rank
+
     for idx, dtfrm in enumerate(list_df_ranks):
         dtfrm.columns = [x.replace('overall_', '') for x in dtfrm.columns]
         if idx == 0:
             df_rank = dtfrm
         else:
-            if list_df_weights[idx] > 0:
-                df_rank = df_rank.merge(dtfrm, how='inner', on='cultivar')
+            df_rank = df_rank.merge(dtfrm, how='inner', on='cultivar')
 
     rank_cols = df_rank.columns[1:]
-    df_rank['overall_rank'] = df_rank[rank_cols].mul([x for x in list_df_weights if x > 0.0]).sum(axis=1) \
+    df_rank['overall_rank'] = df_rank[rank_cols].mul([*list_df_weights]).sum(axis=1) \
                               / sum(list_df_weights)
     df_rank['overall_rank'] = df_rank['overall_rank'].rank(ascending=True, method="dense").astype(int)
 
-    cols = df_rank.columns.tolist()
-    new_col_order = [cols[0]] + [cols[-1]] + cols[1:-1]
+    # remove columns that are not part of ranking
+    cols = ['cultivar', 'overall_rank']
+    candidates = df_rank.columns.tolist()[1:-1]
+    st.text(candidates)
+    for idx, c in enumerate(candidates):
+        if list_df_weights[idx] > 0:
+            cols.append(c)
 
-    return df_rank[new_col_order]
+    return df_rank[cols]
 
 
 def analyze_and_rank(df, metric_type, metrics_catalog_df, weights=None, keep_cols=None):
