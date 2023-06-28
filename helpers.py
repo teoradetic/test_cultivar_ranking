@@ -108,7 +108,10 @@ def weighted_rank(df_rank, metric_type, weights=None):
     df_rank['overall_rank-' + metric_type] = df_rank['avg_rank-' + metric_type].rank(ascending=True,
                                                                                      method="dense").astype(int)
 
-    return df_rank
+    cols = df_rank.columns.tolist()
+    new_col_order = [cols[0]] + [cols[-1]] + [cols[-2]] + cols[1:-2]
+
+    return df_rank[new_col_order]
 
 
 def weighted_overall_rank(list_df_ranks, list_df_weights):
