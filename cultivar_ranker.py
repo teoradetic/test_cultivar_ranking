@@ -60,7 +60,7 @@ else:
 
 boundary_string = boundary.replace('_', ' ').title()
 
-st.sidebar.markdown("**Pikck importance for ranking:**")
+st.sidebar.markdown("**Pick importance for ranking:**")
 # TODO: update it as a state change to always sum up to 100
 # https://discuss.streamlit.io/t/make-value-of-multiple-number-inputs-dependent-of-each-other/33444/2
 BOUNDARY = st.sidebar.slider(boundary_string, min_value=0.0, max_value=100.0, step=1.0, value=40.0)

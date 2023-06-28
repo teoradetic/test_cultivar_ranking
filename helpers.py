@@ -175,7 +175,8 @@ def visualize_metrics(metric_string, metric_df, rank_df, cmap=None):
     st.markdown(f"## {metric_string_pretty} Analysis")
     st.markdown(f"#### Ranking results: {metric_string_pretty} metrics")
     st.dataframe(rank_df.style.format("{:.3}", subset=[f'avg_rank-{metric_string}'])
-                 .background_gradient(cmap=cmap, subset=[f'overall_rank-{metric_string}']))
+                 .background_gradient(cmap=cmap, subset=[f'overall_rank-{metric_string}']),
+                 hide_index=True)
     st.markdown(f"#### {metric_string_pretty} metrics visualized")
     for col in metric_df.columns[1:]:
         st.bar_chart(metric_df, x='cultivar', y=col)  # TODO: Improve visualization
