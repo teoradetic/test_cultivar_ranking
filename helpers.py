@@ -140,7 +140,6 @@ def weighted_overall_rank(list_df_ranks, list_df_weights):
     # remove columns that are not part of ranking
     cols = ['cultivar', 'overall_rank']
     candidates = df_rank.columns.tolist()[1:-1]
-    st.text(candidates)
     for idx, c in enumerate(candidates):
         if list_df_weights[idx] > 0:
             cols.append(c)
