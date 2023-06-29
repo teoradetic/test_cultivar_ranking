@@ -37,9 +37,9 @@ def clean_df(url_to_df_table, metrics_df=None):
         # coerce dtypes: %
         pct_cols = [x for x in list(metrics_df[metrics_df.units == '%'].metric)]
         pct_cols = [x for x in pct_cols if x in df.columns]  # in case they're not shared
-
         for col in pct_cols:
             df[col] = df[col].apply(lambda x: float(x.replace('%', '')) / 100)
+
         # coerce dtypes: date
         date_cols = [x for x in list(metrics_df[metrics_df.data_type == 'date'].metric)]
         date_cols = [x for x in date_cols if x in df.columns]  # in case they're not shared
@@ -70,7 +70,16 @@ def get_metrics(df, metric_type, metrics_catalog_df, keep_cols=None):
     cols_subset_clean = [x for x in cols_subset if x in _df.columns]
     df_metrics = _df[cols_subset_clean]
 
-    # rank catalog
+    # add derived duration metrics
+    # TODO: Automate, no constants should be here
+    if 'date_of_nicanje' in df_metrics.columns:
+        if 'date_of_klasanje' in df_metrics.columns:
+            df_metrics['days_between_nicanje_and_klasanje'] = (df['date_of_klasanje'] - df['date_of_nicanje']) \
+                                                              / np.timedelta64(1, 'D')
+        if 'date_of_cvetanje' in df_metrics.columns:
+            df_metrics['days_between_nicanje_and_cvetanje'] = (df['date_of_cvetanje'] - df['date_of_nicanje']) \
+                                                              / np.timedelta64(1, 'D')
+
     return df_metrics
 
 
