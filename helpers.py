@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
+import altair as alt
 
 
 def get_sheet_url(sheet_id, sheet_name):
@@ -202,5 +203,17 @@ def visualize_metrics(metric_string, metric_df, rank_df, cmap=None):
                  hide_index=True)
     st.markdown(f"#### {metric_string_pretty} metrics visualized")
     for col in metric_df.columns[1:]:
-        st.bar_chart(metric_df, x='cultivar', y=col)  # TODO: Improve visualization
+        # skip date visualizations
+        if col.startswith('date_of_'):
+            continue
+
+        viz_title = f"{col.replace('_', ' ').title()} vs Cultivar"
+        base = alt.Chart(metric_df, title=alt.Title(viz_title)).encode(
+            x=col,
+            y="cultivar:O",
+            text=col,
+            color=alt.Color('cultivar').legend(None).scale(scheme='tableau20'),
+        )
+        chart = base.mark_bar() + base.mark_text(align='left', dx=2)
+        st.altair_chart(chart, use_container_width=True)
     st.divider()
