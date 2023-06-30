@@ -131,7 +131,7 @@ st.divider()
 if crop == 'wheat':
     st.markdown("## Wheat class")
     st.text("The trading class the wheat cultivars can reach based on their quality metrics.")
-    class_cols = ['moisture_at_harvest', 'protein_content', 'hektolitarska_masa', 'impurities']
+    class_cols = ['moisture_at_harvest', 'protein_content', 'hectoliter_mass', 'impurities']
     df['wheat_class'] = df[class_cols].apply(lambda x: get_wheat_classes(*x), axis=1)
     st.dataframe(df[['cultivar', 'wheat_class'] + class_cols], hide_index=True)
     st.divider()
