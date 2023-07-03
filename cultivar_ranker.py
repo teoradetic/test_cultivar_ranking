@@ -76,7 +76,7 @@ MORPHOLOGICAL = st.sidebar.slider('Morphological', min_value=0.0, max_value=100.
 ##############
 col1, col2 = st.columns([1, 5])
 with col1:
-    st.image(Image.open('./cultivar_ranker_logo_2.png'), width=50)
+    st.image(Image.open('logo_2.png'), width=50)
 with col2:
     st.title("Cultivar Ranker")
 
