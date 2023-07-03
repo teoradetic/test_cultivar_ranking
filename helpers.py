@@ -189,19 +189,25 @@ def get_wheat_classes(moisture, protein, mass, impurities):
     return "No class"
 
 
-def visualize_metrics(metric_string, metric_df, rank_df, cmap=None):
+def visualize_metrics(metric_string, metric_df, rank_df, idx, cmap=None):
     """Simple visualizing algorithm displaying a class of metrics, their ranks, and their charts."""
     if cmap is None:
         cmap = plt.cm.get_cmap('summer')
 
     metric_string_pretty = metric_string.replace('_', ' ').title()
 
-    st.markdown(f"## {metric_string_pretty} Analysis")
-    st.markdown(f"#### Ranking results: {metric_string_pretty} metrics")
+    st.markdown(f"## {idx}. {metric_string_pretty} Analysis")
+    st.markdown(f"#### {idx}.1 Ranking results: {metric_string_pretty} metrics")
+    st.text(f"The overall rank takes all the {metric_string_pretty} metrics, \nranks each column separately (from best to worst) "
+            f"\nand then computes the overall rank from all ranks.")
     st.dataframe(rank_df.style.format("{:.3}", subset=[f'avg_rank-{metric_string}'])
                  .background_gradient(cmap=cmap, subset=[f'overall_rank-{metric_string}']),
                  hide_index=True)
-    st.markdown(f"#### {metric_string_pretty} metrics visualized")
+    st.markdown(f"#### {idx}.2 {metric_string_pretty} metrics - details")
+    st.text("Check metrics values for each cultivar.")
+    st.dataframe(metric_df, hide_index=True)
+    st.markdown(f"#### {idx}.3 {metric_string_pretty} metrics visualized")
+    st.text("Each metric is visualized by cultivar.")
     for col in metric_df.columns[1:]:
         # skip date visualizations
         if col.startswith('date_of_'):
