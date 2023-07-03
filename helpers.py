@@ -119,7 +119,7 @@ def weighted_rank(df_rank, metric_type, weights=None):
                                                                                      method="dense").astype(int)
 
     cols = df_rank.columns.tolist()
-    new_col_order = [cols[0]] + [cols[-1]] + [cols[-2]] + cols[1:-2]
+    new_col_order = [cols[0]] + [cols[-1]] + cols[1:-2]
 
     return df_rank[new_col_order]
 
@@ -200,8 +200,7 @@ def visualize_metrics(metric_string, metric_df, rank_df, idx, cmap=None):
     st.markdown(f"#### {idx}.1 Ranking results: {metric_string_pretty} metrics")
     st.text(f"The overall rank takes all the {metric_string_pretty} metrics, \nranks each column separately (from best to worst) "
             f"\nand then computes the overall rank from all ranks.")
-    st.dataframe(rank_df.style.format("{:.3}", subset=[f'avg_rank-{metric_string}'])
-                 .background_gradient(cmap=cmap, subset=[f'overall_rank-{metric_string}']),
+    st.dataframe(rank_df.style.background_gradient(cmap=cmap, subset=[f'overall_rank-{metric_string}']),
                  hide_index=True)
     st.markdown(f"#### {idx}.2 {metric_string_pretty} metrics - details")
     st.text("Check metrics values for each cultivar.")
