@@ -142,12 +142,12 @@ if crop == 'wheat':
 
 # BOUNDARY METRIC #
 boundary_rank.columns = [x.replace('quality', boundary) for x in boundary_rank.columns]
-visualize_metrics(boundary, boundary_metrics, boundary_rank, 1)
+visualize_metrics(boundary, boundary_metrics, boundary_rank, catalog, 1)
 
 # ALL OTHER METRICS METRIC #
-visualize_metrics('yield', yield_metrics, yield_rank, 2)
-visualize_metrics('quality', qual_metrics, qual_rank, 3)
-visualize_metrics('diseases', disease_metrics, disease_rank, 4)
-visualize_metrics('agronomist', agro_metrics, agro_rank, 5)
-visualize_metrics('abiotic', abio_metrics, abio_rank, 6)
-visualize_metrics('morphological', morpho_metrics, morpho_rank, 7)
+visualize_metrics('yield', yield_metrics, yield_rank, catalog, 2)
+visualize_metrics('quality', qual_metrics, qual_rank, catalog, 3)
+visualize_metrics('diseases', disease_metrics, disease_rank, catalog, 4)
+visualize_metrics('agronomist', agro_metrics, agro_rank, catalog, 5)
+visualize_metrics('abiotic', abio_metrics, abio_rank, catalog, 6)
+visualize_metrics('morphological', morpho_metrics, morpho_rank, catalog, 7)
