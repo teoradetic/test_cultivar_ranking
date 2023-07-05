@@ -11,6 +11,7 @@ CATALOG_SHEET = st.secrets.catalog_sheet
 WHEAT_SHEET = st.secrets.wheat_sheet
 PEAS_SHEET = st.secrets.peas_sheet
 SUNFLOWER_SHEET = st.secrets.sunflower_sheet
+RANKER_VIZ = st.secrets.ranking_algo_visualized
 
 # get urls of the sheets for each df
 catalog_url = get_sheet_url(SHEET_ID, CATALOG_SHEET)
@@ -82,6 +83,9 @@ with col2:
 
 st.text(f"Crop: {crop}")
 st.text(f"Season: {season}")
+with st.expander("Show me how the ranking algorithm works."):
+    st.text("Ranks are computed in 9 steps visualized below.")
+    st.image(RANKER_VIZ)
 
 ##############################
 # METRICS & RANK COMPUTATION #
