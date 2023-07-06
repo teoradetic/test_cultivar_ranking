@@ -8,4 +8,4 @@ with col2:
     st.title("Cultivar Ranker")
 
 st.markdown("Cultivar ranker has moved from this experimental URL to a new permanent URL.")
-st.markdown("**Get the new [URL](https://streamlit.logineko-analytics.org/dashboard-cultivar-ranker/)**")
+st.markdown("**[GET THE NEW URL](https://streamlit.logineko-analytics.org/dashboard-cultivar-ranker/)**")
