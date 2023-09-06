@@ -17,11 +17,10 @@ def rank_metrics(df, metrics_catalog_df, keep_cols=None):
     for col in _df.columns:
         if col not in keep_cols:
             is_ascending = list(metrics_catalog_df[metrics_catalog_df.metric == col]['rank_ascending'])[0]
-            na_option = 'bottom' if is_ascending else 'top'
             if is_ascending is not np.nan:  # prevents ranking of non-rankable catalog
                 df['rank-' + col] = _df[col].rank(ascending=is_ascending,
                                                   method="dense",
-                                                  na_option=na_option).astype(int)
+                                                  na_option='bottom').astype(int)
 
     return df
 
