@@ -29,7 +29,7 @@ def remove_column_if_all_values_are_target_value(data_frame, cell_value: str):
 
 
 def remove_rows_if_all_na_in_specified_columns(data_frame, lst_columns):
-    return data_frame.dropna(axis='rows', subset=intersect_lists(data_frame.columns, lst_columns))
+    return data_frame.dropna(axis='rows', subset=intersect_lists(data_frame.columns, lst_columns), how='all')
 
 
 def filter_data(data_frame,
