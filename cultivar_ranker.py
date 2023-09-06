@@ -1,15 +1,17 @@
 from PIL import Image
-from helpers import *
+import matplotlib.pyplot as plt
+from helpers.data_loading import get_dfs_for_cultivar_ranker
+from helpers.data_cleaning import clean_df_for_cr
+from helpers.data_metrics import get_boundary_metric
+from helpers.data_ranking import analyze_and_rank, weighted_overall_rank
+from helpers.data_visualizing import visualize_metrics
+from helpers.streamlit_functions import (select_user_parameters,
+                                         select_ranking_importance_for_metrics,
+                                         present_wheat_class)
 import streamlit as st
 
-col1, col2 = st.columns([1, 5])
-with col1:
-    st.image(Image.open("images/logo.png"), width=50)
-with col2:
-    st.title("Cultivar Ranker")
-
-st.markdown("Cultivar ranker has moved from this experimental URL to a new permanent URL.")
-st.markdown("**[GET THE NEW URL](https://streamlit.logineko-analytics.org/dashboard-cultivar-ranker/)**")
+st.markdown("This is the **TEST** version of Cultivar Ranker")
+st.markdown("**[GET THE LIVE VERSION HERE](https://streamlit.logineko-analytics.org/dashboard-cultivar-ranker/)**")
 
 ######################
 # Prepare dataframes #
@@ -17,28 +19,14 @@ st.markdown("**[GET THE NEW URL](https://streamlit.logineko-analytics.org/dashbo
 # declare constants specifying data assets
 SHEET_ID = st.secrets.sheet_id
 CATALOG_SHEET = "Metrics catalog"
-WHEAT_SHEET = "input - wheat"
-PEAS_SHEET = "input - peas"
-SUNFLOWER_SHEET = "input - sunflower"
+WHEAT_SHEET = "Wheat"
+PEAS_SHEET = "Peas"
+SUNFLOWER_SHEET = "Sunflower"
 RANKER_VIZ = "images/ranking_process_visualized.png"
 LOGO_IMG = "images/logo.png"
 
-# get urls of the sheets for each df
-catalog_url = get_sheet_url(SHEET_ID, CATALOG_SHEET)
-wheat_url = get_sheet_url(SHEET_ID, WHEAT_SHEET)
-peas_url = get_sheet_url(SHEET_ID, PEAS_SHEET)
-sunflower_url = get_sheet_url(SHEET_ID, SUNFLOWER_SHEET)
+df, catalog = get_dfs_for_cultivar_ranker(SHEET_ID, CATALOG_SHEET, crop_sheets=[WHEAT_SHEET, PEAS_SHEET])
 
-# get dataframes for each crop type & the catalog of metrics
-catalog = clean_df(catalog_url, None)
-wheat = clean_df(wheat_url, catalog)
-peas = clean_df(peas_url, catalog)
-sunflower = clean_df(sunflower_url, catalog)
-
-# join all metrics into one df
-all_cols = list(wheat.columns[:4]) + list(catalog.metric)
-df = pd.DataFrame(columns=all_cols)
-df = pd.concat([df, wheat, peas, sunflower], axis=0, ignore_index=True)
 
 #################
 # STREAMLIT APP #
@@ -47,40 +35,24 @@ df = pd.concat([df, wheat, peas, sunflower], axis=0, ignore_index=True)
 ###########
 # SIDEBAR #
 ###########
-# select potential trial_id
-id_options = df.trial_id.unique()
-TRIAL_ID = st.sidebar.selectbox(
-    '**Pick the trial ID**',
-    id_options
-)
-df = df[df.trial_id == TRIAL_ID]
+with st.sidebar:
+    st.markdown("**Select the parameters below**")
+    df = select_user_parameters(df)
+    st.divider()
 
-# get basic info to be used in filtering
-crop = df.crop.unique()[0].split('_')[0]
-season = " ".join([x for x in df.season.unique()[0].split('_')[:2]])
+crop = df.crop.unique()[0]
+season = df.season.unique()[0]
 
-# some additional cleaning
-df.drop(columns=['crop', 'season', 'trial_id'], inplace=True)
-df.dropna(how='all', axis=1, inplace=True)
+# clean data to make it ready for analysis
+df = clean_df_for_cr(df, catalog)
 
 # determine boundary metric
-if crop == 'sunflower':
-    boundary = 'oil_content'
-else:
-    boundary = 'protein_content'
+boundary, boundary_string = get_boundary_metric(crop)
 
-boundary_string = boundary.replace('_', ' ').title()
+# collect user input for ranking importance
+with st.sidebar:
+    BOUNDARY, YIELD, QUALITY, DISEASES, AGRONOMIST, ABIOTIC, WEEDS, MORPHOLOGICAL = select_ranking_importance_for_metrics(boundary_string)
 
-st.sidebar.markdown("**Pick importance for ranking:**")
-# TODO: update it as a state change to always sum up to 100
-# https://discuss.streamlit.io/t/make-value-of-multiple-number-inputs-dependent-of-each-other/33444/2
-BOUNDARY = st.sidebar.slider(boundary_string, min_value=0.0, max_value=100.0, step=1.0, value=40.0)
-YIELD = st.sidebar.slider('Yield', min_value=0.0, max_value=100.0, step=1.0, value=30.0)
-QUALITY = st.sidebar.slider('Quality/trading', min_value=0.0, max_value=100.0, step=1.0, value=30.0)
-DISEASES = st.sidebar.slider('Diseases', min_value=0.0, max_value=100.0, step=1.0, value=0.0)
-AGRONOMIST = st.sidebar.slider('Agronomist', min_value=0.0, max_value=100.0, step=1.0, value=0.0)
-ABIOTIC = st.sidebar.slider('Abiotic', min_value=0.0, max_value=100.0, step=1.0, value=0.0)
-MORPHOLOGICAL = st.sidebar.slider('Morphological', min_value=0.0, max_value=100.0, step=1.0, value=0.0)
 
 ##############
 # Title page #
@@ -105,6 +77,7 @@ with st.expander("Show me how the ranking algorithm works."):
 boundary_df = df.copy()
 boundary_df = boundary_df[['cultivar', boundary]]
 
+
 # compute all ranks and metrics
 boundary_metrics, boundary_rank = analyze_and_rank(boundary_df, 'quality', catalog)
 qual_metrics, qual_rank = analyze_and_rank(df, 'quality', catalog)
@@ -112,6 +85,7 @@ yield_metrics, yield_rank = analyze_and_rank(df, 'yield', catalog)
 disease_metrics, disease_rank = analyze_and_rank(df, 'diseases', catalog)
 agro_metrics, agro_rank = analyze_and_rank(df, 'agronomist', catalog)
 abio_metrics, abio_rank = analyze_and_rank(df, 'abiotic', catalog)
+weeds_metrics, weeds_rank = analyze_and_rank(df, 'weeds', catalog)
 morpho_metrics, morpho_rank = analyze_and_rank(df, 'morphological', catalog)
 
 ############################
@@ -125,9 +99,10 @@ ranks = [boundary_rank[['cultivar', 'overall_rank-quality']]
          disease_rank[['cultivar', 'overall_rank-diseases']],
          agro_rank[['cultivar', 'overall_rank-agronomist']],
          abio_rank[['cultivar', 'overall_rank-abiotic']],
+         weeds_rank[['cultivar', 'overall_rank-weeds']],
          morpho_rank[['cultivar', 'overall_rank-morphological']]
          ]
-weights = [BOUNDARY, YIELD, QUALITY, DISEASES, AGRONOMIST, ABIOTIC, MORPHOLOGICAL]
+weights = [BOUNDARY, YIELD, QUALITY, DISEASES, AGRONOMIST, ABIOTIC, WEEDS, MORPHOLOGICAL]
 
 df_rank = weighted_overall_rank(ranks, weights)
 
@@ -143,11 +118,7 @@ st.divider()
 
 # CONDITIONAL WHEAT CLASSES #
 if crop == 'wheat':
-    st.markdown("## Wheat class")
-    st.text("The trading class the wheat cultivars can reach based on their quality metrics.")
-    class_cols = ['moisture_at_harvest', 'protein_content', 'hectoliter_mass', 'impurities']
-    df['wheat_class'] = df[class_cols].apply(lambda x: get_wheat_classes(*x), axis=1)
-    st.dataframe(df[['cultivar', 'wheat_class'] + class_cols], hide_index=True)
+    present_wheat_class(df)
     st.divider()
 
 # BOUNDARY METRIC #
@@ -160,4 +131,5 @@ visualize_metrics('quality', qual_metrics, qual_rank, catalog, 3)
 visualize_metrics('diseases', disease_metrics, disease_rank, catalog, 4)
 visualize_metrics('agronomist', agro_metrics, agro_rank, catalog, 5)
 visualize_metrics('abiotic', abio_metrics, abio_rank, catalog, 6)
-visualize_metrics('morphological', morpho_metrics, morpho_rank, catalog, 7)
+visualize_metrics('weeds', weeds_metrics, weeds_rank, catalog, 7)
+visualize_metrics('morphological', morpho_metrics, morpho_rank, catalog, 8)
