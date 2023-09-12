@@ -3,7 +3,7 @@ from PIL import Image
 import matplotlib.pyplot as plt
 from helpers.data_loading import get_dfs_for_cultivar_ranker, load_csv_file, get_sheet_url
 from helpers.data_cleaning import clean_df_for_cr, remove_listed_columns, remove_columns_with_all_nas
-from helpers.data_metrics import get_boundary_metric, compute_blup_metrics
+from helpers.data_metrics import get_boundary_metric
 from helpers.data_ranking import analyze_and_rank, weighted_overall_rank
 from helpers.data_visualizing import visualize_metrics
 from helpers.streamlit_functions import (select_user_parameters,
