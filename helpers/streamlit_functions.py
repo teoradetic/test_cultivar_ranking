@@ -100,22 +100,22 @@ def select_ranking_importance_for_metrics(boundary_string):
 
     col1, col2 = st.columns(2)
     with col1:
-        boundary = st.slider(boundary_string, key='boundary', min_value=0, max_value=100, step=1, value=40,
+        boundary = st.slider(boundary_string, key='boundary', min_value=0, max_value=100, step=1,
                              on_change=update, args=('boundary',))
-        crop_yield = st.slider('Yield', key='crop_yield', min_value=0, max_value=100, step=1, value=30,
+        crop_yield = st.slider('Yield', key='crop_yield', min_value=0, max_value=100, step=1,
                                on_change=update, args=('crop_yield',))
-        quality = st.slider('Quality/trading', key='quality', min_value=0, max_value=100, step=1, value=30,
+        quality = st.slider('Quality/trading', key='quality', min_value=0, max_value=100, step=1,
                             on_change=update, args=('quality',))
-        diseases = st.slider('Diseases', key='diseases', min_value=0, max_value=100, step=1, value=0, on_change=update,
+        diseases = st.slider('Diseases', key='diseases', min_value=0, max_value=100, step=1, on_change=update,
                              args=('diseases',))
     with col2:
-        agronomist = st.slider('Agronomist', key='agronomist', min_value=0, max_value=100, step=1, value=0,
+        agronomist = st.slider('Agronomist', key='agronomist', min_value=0, max_value=100, step=1,
                                on_change=update, args=('agronomist',))
-        abiotic = st.slider('Abiotic', key='abiotic', min_value=0, max_value=100, step=1, value=0,
+        abiotic = st.slider('Abiotic', key='abiotic', min_value=0, max_value=100, step=1,
                             on_change=update, args=('abiotic',))
-        weeds = st.slider('Weeds', key='weeds', min_value=0, max_value=100, step=1, value=0,
+        weeds = st.slider('Weeds', key='weeds', min_value=0, max_value=100, step=1,
                           on_change=update, args=('weeds',))
-        morphological = st.slider('Morphological', key='morphological', min_value=0, max_value=100, step=1, value=0,
+        morphological = st.slider('Morphological', key='morphological', min_value=0, max_value=100, step=1,
                                   on_change=update, args=('morphological',))
 
     st.button(label="Make all metrics equally important", on_click=make_all_metrics_equally_important)
