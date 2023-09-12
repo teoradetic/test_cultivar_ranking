@@ -1,5 +1,5 @@
 import pandas as pd
-from .data_metrics import compute_duration_metrics
+from .data_metrics import compute_duration_metrics, compute_blup_metrics
 from .utils import intersect_lists
 
 
@@ -129,7 +129,7 @@ def aggregate_data(data_frame, group_by_col='cultivar'):
 # ALL CLEANING PROCEDURES #
 ###########################
 
-def clean_df_for_cr(data_frame, catalog_df):
+def clean_df_for_cr(data_frame, catalog_df, blup_df=None):
     # set params - anti-pattern within funct, but easier
     cols_to_drop = ['qr_code_seed', 'qr_code_plant_material', 'trial_id', 'crop', 'season', 'location', 'plot_id']
     row_vals_to_drop_col = 'canceled'
@@ -148,5 +148,9 @@ def clean_df_for_cr(data_frame, catalog_df):
 
     # aggregate data
     data_frame = aggregate_data(data_frame, 'cultivar')
+
+    # correct blup metrics if they exist
+    if blup_df is not None:
+        data_frame = compute_blup_metrics(data_frame, blup_df, catalog_df, 'cultivar')
 
     return data_frame

@@ -6,13 +6,15 @@ import streamlit as st
 from streamlit import session_state as ss
 
 
-def select_user_parameters(data_frame):
+def select_user_parameters(data_frame, blup_df):
     id_options = data_frame.trial_id.unique()
     trial_id = st.selectbox(
         '**Pick the trial ID**',
         id_options
     )
     data_frame = data_frame[data_frame.trial_id == trial_id]
+    # todo: handle BLUP data better
+    blup_df = blup_df[blup_df.trial_id == trial_id]
 
     # Select location
     location_options = np.append(data_frame.location.unique(), ['ALL'])
@@ -22,6 +24,8 @@ def select_user_parameters(data_frame):
     )
     if location != 'ALL':
         data_frame = data_frame[data_frame.location == location]
+    # todo: handle BLUP data better
+    blup_df = blup_df[blup_df.location == location]
 
     # Select season
     season_options = np.append(data_frame.season.unique(), ['ALL'])
@@ -31,8 +35,10 @@ def select_user_parameters(data_frame):
     )
     if season != 'ALL':
         data_frame = data_frame[data_frame.season == season]
+        # todo: handle BLUP data better
+        blup_df = blup_df[blup_df.season.astype(str) == season]
 
-    return data_frame
+    return data_frame, blup_df
 
 
 def select_ranking_importance_for_metrics(boundary_string):

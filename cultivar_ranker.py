@@ -1,14 +1,16 @@
+import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
-from helpers.data_loading import get_dfs_for_cultivar_ranker
-from helpers.data_cleaning import clean_df_for_cr
-from helpers.data_metrics import get_boundary_metric
+from helpers.data_loading import get_dfs_for_cultivar_ranker, load_csv_file, get_sheet_url
+from helpers.data_cleaning import clean_df_for_cr, remove_listed_columns, remove_columns_with_all_nas
+from helpers.data_metrics import get_boundary_metric, compute_blup_metrics
 from helpers.data_ranking import analyze_and_rank, weighted_overall_rank
 from helpers.data_visualizing import visualize_metrics
 from helpers.streamlit_functions import (select_user_parameters,
                                          select_ranking_importance_for_metrics,
                                          present_wheat_class)
 import streamlit as st
+from streamlit import session_state as ss
 
 st.markdown("This is the **TEST** version of Cultivar Ranker")
 st.markdown("**[GET THE LIVE VERSION HERE](https://streamlit.logineko-analytics.org/dashboard-cultivar-ranker/)**")
@@ -24,9 +26,11 @@ PEAS_SHEET = "Peas"
 SUNFLOWER_SHEET = "Sunflower"
 RANKER_VIZ = "images/ranking_process_visualized.png"
 LOGO_IMG = "images/logo.png"
+BLUP_SHEET = 'BLUP'
 
 df, catalog = get_dfs_for_cultivar_ranker(SHEET_ID, CATALOG_SHEET, crop_sheets=[WHEAT_SHEET, PEAS_SHEET])
-
+# todo: handle BLUP data better
+blup_df = load_csv_file(get_sheet_url(SHEET_ID, BLUP_SHEET))
 
 #################
 # STREAMLIT APP #
@@ -37,14 +41,17 @@ df, catalog = get_dfs_for_cultivar_ranker(SHEET_ID, CATALOG_SHEET, crop_sheets=[
 ###########
 with st.sidebar:
     st.markdown("**Select the parameters below**")
-    df = select_user_parameters(df)
+    # todo: handle BLUP data better
+    df, blup_df = select_user_parameters(df, blup_df)
     st.divider()
 
 crop = df.crop.unique()[0]
 season = df.season.unique()[0]
 
 # clean data to make it ready for analysis
-df = clean_df_for_cr(df, catalog)
+# todo: handle BLUP data better
+blup_df = remove_columns_with_all_nas(remove_listed_columns(blup_df, ['trial_id', 'location', 'season']))
+df = clean_df_for_cr(df, catalog, blup_df)
 
 # determine boundary metric
 boundary, boundary_string = get_boundary_metric(crop)

@@ -1,7 +1,6 @@
 from .utils import title_case_string
 import numpy as np
 import pandas as pd
-import streamlit as st
 
 
 def get_boundary_metric(crop_name):
@@ -41,19 +40,35 @@ def compute_duration_metrics(data_frame):
     return data_frame
 
 
-def overwrite_metrics(df1, df2, key):
-    df = df1.copy()
-    merged_df = pd.merge(df1, df2, on=key, how='left', suffixes=('_old_', '_new_'))
-    """for col in merged_df:
-        if '_new_' in col:
-            data_frame[col] = merged_df[col]
-    return data_frame"""
+def overwrite_columns(df1, df2, key):
+    """Overwrites columns from df1 with df2 values if df2 cols are named the same (except for key)"""
+    merged_df = pd.merge(df1, df2, on=key, how='left', suffixes=(None, '_new'))
+    for col in merged_df:
+        if '_new' in col:
+            merged_df[col.replace('_new', '')] = merged_df[col]
+            merged_df = merged_df.drop([col], axis='columns')
     return merged_df
 
 
-def compute_blup_metrics(data_frame, blup_df):
+def update_row_value(data_frame, target_col, filter_col_id, filter_row_id, new_appended_value):
+    data_frame[target_col] = np.where(data_frame[filter_col_id]==filter_row_id,
+                                      data_frame[target_col] + new_appended_value,
+                                      data_frame[target_col])
+
+
+def compute_blup_metrics(data_frame, blup_df, catalog_df, key='cultivar'):
     """For the time being, this just overwrites existing metrics with new ones"""
-    pass
+    data_frame = overwrite_columns(data_frame, blup_df, key)
+    for col in data_frame.columns:
+        if col in blup_df.columns and col != key:
+            update_row_value(catalog_df,
+                             'explanation',
+                             'metric',
+                             col,
+                             ' The raw metric values have been corrected with a Best Linear Unbiased '
+                             ' Predictor (BLUP) to minimize genetic variance.')
+
+    return data_frame
 
 
 def get_wheat_classes(moisture, protein, mass, impurities):
