@@ -124,9 +124,11 @@ st.dataframe(df_rank.style.background_gradient(cmap=cmap, subset=['overall_rank'
 st.divider()
 
 # CONDITIONAL WHEAT CLASSES #
+# temporarily commented out until we understand if needed
 if crop == 'wheat':
-    present_wheat_class(df)
-    st.divider()
+    #present_wheat_class(df)
+    #st.divider()
+    pass
 
 # BOUNDARY METRIC #
 boundary_rank.columns = [x.replace('quality', boundary) for x in boundary_rank.columns]
