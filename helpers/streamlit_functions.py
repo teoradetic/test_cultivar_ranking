@@ -7,14 +7,14 @@ from streamlit import session_state as ss
 
 
 def select_user_parameters(data_frame, blup_df):
-    id_options = data_frame.trial_id.unique()
-    trial_id = st.selectbox(
-        '**Pick the trial ID**',
-        id_options
+    crop_options = data_frame.crop.unique()
+    crop_id = st.selectbox(
+        '**Pick the crop**',
+        crop_options
     )
-    data_frame = data_frame[data_frame.trial_id == trial_id]
+    data_frame = data_frame[data_frame.crop == crop_id]
     # todo: handle BLUP data better
-    blup_df = blup_df[blup_df.trial_id == trial_id]
+    blup_df = blup_df[blup_df.crop == crop_id]
 
     # Select location
     location_options = np.append(data_frame.location.unique(), ['ALL'])
@@ -36,7 +36,7 @@ def select_user_parameters(data_frame, blup_df):
     if season != 'ALL':
         data_frame = data_frame[data_frame.season == season]
         # todo: handle BLUP data better
-        blup_df = blup_df[blup_df.season.astype(str) == season]
+        blup_df = blup_df[blup_df.season.astype(str) == str(season)]
 
     return data_frame, blup_df
 

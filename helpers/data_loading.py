@@ -54,9 +54,4 @@ def get_dfs_for_cultivar_ranker(sheet_id: str, catalog_sheet: str, crop_sheets: 
     extra_columns = [x for x in df_crops.columns if x not in all_cols]
     df_crops = remove_listed_columns(df_crops, extra_columns)
 
-    # derive helpers columns
-    df_crops['crop'] = df_crops.trial_id.apply(lambda x: x.split('_')[1].lower())
-    df_crops['season'] = df_crops.trial_id.apply(lambda x: "20" + x.split('_')[-1])
-    df_crops['location'] = df_crops.plot_id.apply(lambda x: x[:2])
-
     return df_crops, catalog_df
