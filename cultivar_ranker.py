@@ -92,7 +92,7 @@ yield_metrics, yield_rank = analyze_and_rank(df, 'yield', catalog)
 disease_metrics, disease_rank = analyze_and_rank(df, 'diseases', catalog)
 agro_metrics, agro_rank = analyze_and_rank(df, 'agronomist', catalog)
 abio_metrics, abio_rank = analyze_and_rank(df, 'abiotic', catalog)
-weeds_metrics, weeds_rank = analyze_and_rank(df, 'weeds', catalog)
+weeds_metrics, weeds_rank = analyze_and_rank(df, 'weed_competition', catalog)
 morpho_metrics, morpho_rank = analyze_and_rank(df, 'morphological', catalog)
 
 ############################
@@ -106,7 +106,7 @@ ranks = [boundary_rank[['cultivar', 'overall_rank-quality']]
          disease_rank[['cultivar', 'overall_rank-diseases']],
          agro_rank[['cultivar', 'overall_rank-agronomist']],
          abio_rank[['cultivar', 'overall_rank-abiotic']],
-         weeds_rank[['cultivar', 'overall_rank-weeds']],
+         weeds_rank[['cultivar', 'overall_rank-weed_competition']],
          morpho_rank[['cultivar', 'overall_rank-morphological']]
          ]
 weights = [BOUNDARY, YIELD, QUALITY, DISEASES, AGRONOMIST, ABIOTIC, WEEDS, MORPHOLOGICAL]
@@ -140,5 +140,5 @@ visualize_metrics('quality', qual_metrics, qual_rank, catalog, 3)
 visualize_metrics('diseases', disease_metrics, disease_rank, catalog, 4)
 visualize_metrics('agronomist', agro_metrics, agro_rank, catalog, 5)
 visualize_metrics('abiotic', abio_metrics, abio_rank, catalog, 6)
-visualize_metrics('weeds', weeds_metrics, weeds_rank, catalog, 7)
+visualize_metrics('weed_competition', weeds_metrics, weeds_rank, catalog, 7)
 visualize_metrics('morphological', morpho_metrics, morpho_rank, catalog, 8)

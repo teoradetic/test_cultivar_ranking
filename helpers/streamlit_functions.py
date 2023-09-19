@@ -65,7 +65,7 @@ def select_ranking_importance_for_metrics(boundary_string):
         Calculates how many importance points are already picked by the user.
         Uses ss (state) and the key identifiers for the sliders.
         """
-        s = ss.boundary + ss.crop_yield + ss.quality + ss.diseases + ss.agronomist + ss.abiotic + ss.weeds + ss.morphological
+        s = (ss.boundary + ss.crop_yield + ss.quality + ss.diseases + ss.agronomist + ss.abiotic + ss.weeds + ss.morphological)
         return s
 
     def get_available_points(total_points, used_points):
@@ -113,7 +113,7 @@ def select_ranking_importance_for_metrics(boundary_string):
                                on_change=update, args=('agronomist',))
         abiotic = st.slider('Abiotic', key='abiotic', min_value=0, max_value=100, step=1,
                             on_change=update, args=('abiotic',))
-        weeds = st.slider('Weeds', key='weeds', min_value=0, max_value=100, step=1,
+        weeds = st.slider('Weed competition', key='weeds', min_value=0, max_value=100, step=1,
                           on_change=update, args=('weeds',))
         morphological = st.slider('Morphological', key='morphological', min_value=0, max_value=100, step=1,
                                   on_change=update, args=('morphological',))
