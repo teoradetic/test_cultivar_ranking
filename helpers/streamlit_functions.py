@@ -60,12 +60,17 @@ def select_ranking_importance_for_metrics(boundary_string):
         for s in sliders:
             ss[s] = available_per_slider
 
+    def reset_all_metrics_to_zero():
+        for s in sliders:
+            ss[s] = 0
+
     def get_used_points():
         """
         Calculates how many importance points are already picked by the user.
         Uses ss (state) and the key identifiers for the sliders.
         """
-        s = (ss.boundary + ss.crop_yield + ss.quality + ss.diseases + ss.agronomist + ss.abiotic + ss.weeds + ss.morphological)
+        s = (
+                    ss.boundary + ss.crop_yield + ss.quality + ss.diseases + ss.agronomist + ss.abiotic + ss.weeds + ss.morphological)
         return s
 
     def get_available_points(total_points, used_points):
@@ -108,6 +113,8 @@ def select_ranking_importance_for_metrics(boundary_string):
                             on_change=update, args=('quality',))
         diseases = st.slider('Diseases', key='diseases', min_value=0, max_value=100, step=1, on_change=update,
                              args=('diseases',))
+
+        st.button(label="Equalize", on_click=make_all_metrics_equally_important)
     with col2:
         agronomist = st.slider('Agronomist', key='agronomist', min_value=0, max_value=100, step=1,
                                on_change=update, args=('agronomist',))
@@ -118,8 +125,8 @@ def select_ranking_importance_for_metrics(boundary_string):
         morphological = st.slider('Morphological', key='morphological', min_value=0, max_value=100, step=1,
                                   on_change=update, args=('morphological',))
 
-    st.button(label="Make all metrics equally important", on_click=make_all_metrics_equally_important)
-    
+        st.button(label="Reset to 0", on_click=reset_all_metrics_to_zero)
+
     return boundary, crop_yield, quality, diseases, agronomist, abiotic, weeds, morphological
 
 
