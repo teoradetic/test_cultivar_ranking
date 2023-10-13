@@ -32,11 +32,19 @@ def remove_rows_if_all_na_in_specified_columns(data_frame, lst_columns):
     return data_frame.dropna(axis='rows', subset=intersect_lists(data_frame.columns, lst_columns), how='all')
 
 
+def remove_rows_if_val_in_col(data_frame, col, val):
+    """Drop all rows that have @val as value in columns @col. Used for manual filtering of data."""
+    return data_frame.drop(data_frame[data_frame[col] == val].index)
+
+
 def filter_data(data_frame,
                 columns_to_drop: list,
                 value_to_drop_col_if_only_value_in_column,
                 cols_with_na_rows: list,
+                filter_col,
+                val_of_filer_col,
                 na_threshold=0.75):
+    data_frame = remove_rows_if_val_in_col(data_frame, filter_col, val_of_filer_col)
     data_frame = remove_listed_columns(data_frame, columns_to_drop)
     data_frame = remove_duplicates(data_frame)
     data_frame = remove_columns_with_all_nas(data_frame)
@@ -75,7 +83,8 @@ def coerce_date_columns(data_frame, lst_columns, date_format='%B %d, %Y'):
 
 def coerce_dtypes(data_frame, catalog_df):
     float_cols = intersect_lists(data_frame.columns, list(catalog_df[catalog_df['data_type'] == "float"].metric))
-    int_cols = intersect_lists(data_frame.columns, list(catalog_df[catalog_df['data_type'].isin(['integer', 'category'])].metric))
+    int_cols = intersect_lists(data_frame.columns,
+                               list(catalog_df[catalog_df['data_type'].isin(['integer', 'category'])].metric))
     date_cols = intersect_lists(data_frame.columns, list(catalog_df[catalog_df.data_type == "date"].metric))
 
     coerce_float_columns(data_frame, float_cols)
@@ -131,13 +140,16 @@ def aggregate_data(data_frame, group_by_col='cultivar'):
 
 def clean_df_for_cr(data_frame, catalog_df, blup_df=None):
     # set params - anti-pattern within funct, but easier
-    cols_to_drop = ['qr_code_seed', 'qr_code_plant_material', 'trial_id', 'crop', 'season', 'location', 'plot_id']
+    cols_to_drop = ['qr_code_seed', 'qr_code_plant_material', 'trial_id', 'crop', 'season', 'location', 'plot_id',
+                    'exclude_from_analysis']
     row_vals_to_drop_col = 'canceled'
     quality_cols = list(catalog_df[catalog_df['type'] == 'quality'].metric)
     cols_with_na_rows = [x for x in data_frame.columns if x in quality_cols]
+    filter_col = 'exclude_from_analysis'
+    filter_val = True
 
     # clean data frame
-    data_frame = filter_data(data_frame, cols_to_drop, row_vals_to_drop_col, cols_with_na_rows)
+    data_frame = filter_data(data_frame, cols_to_drop, row_vals_to_drop_col, cols_with_na_rows, filter_col, filter_val)
     data_frame = rename_columns(data_frame, {'genotype': 'cultivar'})
     data_frame = coerce_dtypes(data_frame, catalog_df)
 
