@@ -150,7 +150,7 @@ def clean_df_for_cr(data_frame, catalog_df, blup_df=None):
     data_frame = aggregate_data(data_frame, 'cultivar')
 
     # correct blup metrics if they exist
-    if blup_df is not None:
+    if len(blup_df) > 0:
         data_frame = compute_blup_metrics(data_frame, blup_df, catalog_df, 'cultivar')
 
     return data_frame
