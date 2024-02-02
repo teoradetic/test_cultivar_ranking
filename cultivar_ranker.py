@@ -11,6 +11,23 @@ from helpers.streamlit_functions import (select_user_parameters,
                                          present_wheat_class)
 import streamlit as st
 from streamlit import session_state as ss
+import streamlit.components.v1 as components
+
+GA4_MID = st.secrets.ga4_measurement_id
+components.html(
+    f"""
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id={GA4_MID}"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){{dataLayer.push(arguments);}}
+      gtag('js', new Date());
+    
+      gtag('config', '{GA4_MID}');
+    </script>
+    """,
+    height=0,
+)
 
 st.markdown("This is the **TEST** version of Cultivar Ranker")
 st.markdown("**[GET THE LIVE VERSION HERE](https://streamlit.logineko-analytics.org/dashboard-cultivar-ranker/)**")
