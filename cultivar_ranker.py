@@ -1,3 +1,4 @@
+import os
 import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
@@ -11,23 +12,9 @@ from helpers.streamlit_functions import (select_user_parameters,
                                          present_wheat_class)
 import streamlit as st
 from streamlit import session_state as ss
-import streamlit.components.v1 as components
+from helpers.product_analytics import ga4_code, start_tracking
 
-GA4_MID = st.secrets.ga4_measurement_id
-components.html(
-    f"""
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id={GA4_MID}"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){{dataLayer.push(arguments);}}
-      gtag('js', new Date());
-    
-      gtag('config', '{GA4_MID}');
-    </script>
-    """,
-    height=0,
-)
+start_tracking(ga4_code)
 
 st.markdown("This is the **TEST** version of Cultivar Ranker")
 st.markdown("**[GET THE LIVE VERSION HERE](https://streamlit.logineko-analytics.org/dashboard-cultivar-ranker/)**")
