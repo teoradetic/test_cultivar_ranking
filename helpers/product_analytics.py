@@ -24,7 +24,7 @@ def start_tracking(tracking_snippet):
 
     with open(a, 'r') as f:
         data = f.read()
-        if len(re.findall(tracking_snippet, data)) == 0:
+        if len(re.findall('G-', data)) == 0:
             with open(a, 'w') as ff:
                 new_data = re.sub('<head>', '<head>' + tracking_snippet, data)
                 ff.write(new_data)
