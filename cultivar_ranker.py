@@ -10,11 +10,10 @@ from helpers.data_visualizing import visualize_metrics
 from helpers.streamlit_functions import (select_user_parameters,
                                          select_ranking_importance_for_metrics,
                                          present_wheat_class)
+from helpers.product_analytics import inject_ga
 import streamlit as st
-from streamlit import session_state as ss
-from helpers.product_analytics import ga4_code, start_tracking
 
-start_tracking(ga4_code)
+inject_ga()
 
 st.markdown("This is the **TEST** version of Cultivar Ranker")
 st.markdown("**[GET THE LIVE VERSION HERE](https://streamlit.logineko-analytics.org/dashboard-cultivar-ranker/)**")
