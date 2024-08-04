@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import pandas as pd
 from PIL import Image
 import matplotlib.pyplot as plt
 from helpers.data_loading import get_dfs_for_cultivar_ranker, load_csv_file, get_sheet_url
@@ -23,7 +24,7 @@ st.markdown("**[GET THE LIVE VERSION HERE](https://streamlit.logineko-analytics.
 # Prepare dataframes #
 ######################
 # declare constants specifying data assets
-SHEET_ID = st.secrets.sheet_id
+SHEET_IDS = st.secrets.sheet_ids
 CATALOG_SHEET = "Metrics catalog"
 WHEAT_SHEET = "Wheat"
 PEAS_SHEET = "Peas"
@@ -32,9 +33,13 @@ RANKER_VIZ = "images/ranking_process_visualized.png"
 LOGO_IMG = "images/logo.png"
 BLUP_SHEET = 'BLUP'
 
-df, catalog = get_dfs_for_cultivar_ranker(SHEET_ID, CATALOG_SHEET, crop_sheets=[WHEAT_SHEET, PEAS_SHEET])
-# todo: handle BLUP data better
-blup_df = load_csv_file(get_sheet_url(SHEET_ID, BLUP_SHEET))
+df, blup_df, catalog = pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
+for sheet in SHEET_IDS:
+    _df, catalog = get_dfs_for_cultivar_ranker(sheet, CATALOG_SHEET, crop_sheets=[WHEAT_SHEET, PEAS_SHEET])
+    # todo: handle BLUP data better
+    _blup_df = load_csv_file(get_sheet_url(sheet, BLUP_SHEET))
+    df = pd.concat([df, _df], ignore_index=True)
+    blup_df = pd.concat([blup_df, _blup_df], ignore_index=True)
 
 #################
 # STREAMLIT APP #

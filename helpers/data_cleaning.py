@@ -71,7 +71,7 @@ def coerce_float_columns(data_frame, lst_columns):
 def coerce_int_columns(data_frame, lst_columns):
     for c in lst_columns:
         try:
-            data_frame[c] = data_frame[c].astype('int64')
+            data_frame[c] = pd.to_numeric(data_frame[c], errors='coerce').astype('Int64')
         except Exception as e:
             data_frame[c] = data_frame[c].astype('float')
 
