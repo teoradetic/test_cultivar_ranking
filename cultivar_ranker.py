@@ -36,7 +36,11 @@ BLUP_SHEET = 'BLUP'
 
 df, blup_df, catalog = pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
 for sheet in SHEET_IDS:
-    _df, catalog = get_dfs_for_cultivar_ranker(sheet, CATALOG_SHEET, crop_sheets=[WHEAT_SHEET, PEAS_SHEET])
+    _df, catalog = get_dfs_for_cultivar_ranker(sheet,
+                                               CATALOG_SHEET,
+                                               crop_sheets=[WHEAT_SHEET,
+                                                            WHEAT_RELATIVES_SHEET,
+                                                            PEAS_SHEET])
     # todo: handle BLUP data better
     _blup_df = load_csv_file(get_sheet_url(sheet, BLUP_SHEET))
     df = pd.concat([df, _df], ignore_index=True)
@@ -56,7 +60,10 @@ with st.sidebar:
     st.divider()
 
 crop = df.crop.unique()[0]
-season = df.season.unique()[0]
+if len(df['season'].dropna().unique()) > 1:
+    season = ', '.join(map(str, df['season'].dropna().unique()))
+else:
+    season = str(df['season'].dropna().unique()[0])
 
 # clean data to make it ready for analysis
 # todo: handle BLUP data better
