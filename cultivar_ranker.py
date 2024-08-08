@@ -27,6 +27,7 @@ st.markdown("**[GET THE LIVE VERSION HERE](https://streamlit.logineko-analytics.
 SHEET_IDS = st.secrets.sheet_ids
 CATALOG_SHEET = "Metrics catalog"
 WHEAT_SHEET = "Wheat"
+WHEAT_RELATIVES_SHEET = "Wheat relatives"
 PEAS_SHEET = "Peas"
 SUNFLOWER_SHEET = "Sunflower"
 RANKER_VIZ = "images/ranking_process_visualized.png"
@@ -59,7 +60,7 @@ season = df.season.unique()[0]
 
 # clean data to make it ready for analysis
 # todo: handle BLUP data better
-blup_df = remove_columns_with_all_nas(remove_listed_columns(blup_df, ['trial_id', 'location', 'season']))
+blup_df = remove_columns_with_all_nas(remove_listed_columns(blup_df, ['location', 'season']))
 df = clean_df_for_cr(df, catalog, blup_df)
 
 # determine boundary metric

@@ -1,5 +1,5 @@
 import pandas as pd
-from .data_metrics import compute_duration_metrics, compute_blup_metrics
+from .data_metrics import compute_duration_metrics
 from .utils import intersect_lists
 
 
@@ -98,14 +98,25 @@ def coerce_dtypes(data_frame, catalog_df):
 # AGGREGATE DATA #
 ##################
 
-def aggregate_object_cols(data_frame):
+def aggregate_object_cols(data_frame, group_by_cols=None):
+    if group_by_cols is None:
+        group_by_cols = ['trial_id', 'cultivar']
     _df = data_frame.copy().select_dtypes(include='object')
+
+    # Trim whitespace from all object columns
+    _df = _df.applymap(lambda x: x.strip() if isinstance(x, str) else x)
+
+    # remove duplicated rows
     _df = remove_duplicates(_df)
+
     return _df
 
 
-def filter_df_numeric_columns(data_frame, keep_col):
-    keep_cols = [keep_col]
+def filter_df_numeric_columns(data_frame, keep_cols):
+    if not isinstance(keep_cols, list):
+        keep_cols = [keep_cols]
+    else:
+        keep_cols = [x for x in keep_cols]
 
     types = data_frame.copy().dtypes.reset_index()
     types.columns = ['metric', 'dtype']
@@ -118,18 +129,20 @@ def filter_df_numeric_columns(data_frame, keep_col):
     return numeric_df
 
 
-def aggregate_numeric_cols(data_frame, group_by_col):
-    _df = filter_df_numeric_columns(data_frame, group_by_col)
-    _df = _df.groupby(group_by_col).mean()
+def aggregate_numeric_cols(data_frame, group_by_cols):
+    _df = filter_df_numeric_columns(data_frame, group_by_cols)
+    _df = _df.groupby(group_by_cols).mean()
     _df = _df.round(2)
     return _df
 
 
-def aggregate_data(data_frame, group_by_col='cultivar'):
-    obj_df = aggregate_object_cols(data_frame)
-    num_df = aggregate_numeric_cols(data_frame, group_by_col)
+def aggregate_data(data_frame, group_by_cols=None):
+    if group_by_cols is None:
+        group_by_cols = ['trial_id', 'cultivar']
+    obj_df = aggregate_object_cols(data_frame, group_by_cols)
+    num_df = aggregate_numeric_cols(data_frame, group_by_cols)
 
-    agg_data_frame = obj_df.merge(num_df, on=group_by_col, how='left')
+    agg_data_frame = obj_df.merge(num_df, on=group_by_cols, how='left')
 
     return agg_data_frame
 
@@ -140,8 +153,8 @@ def aggregate_data(data_frame, group_by_col='cultivar'):
 
 def clean_df_for_cr(data_frame, catalog_df, blup_df=None):
     # set params - anti-pattern within funct, but easier
-    cols_to_drop = ['qr_code_seed', 'qr_code_plant_material', 'trial_id', 'crop', 'season', 'location', 'plot_id',
-                    'exclude_from_analysis']
+    cols_to_drop = ['qr_code_seed', 'qr_code_plant_material', 'crop', 'season', 'location', 'plot_id',
+                    'experiment_type', 'exclude_from_analysis']
     row_vals_to_drop_col = 'canceled'
     quality_cols = list(catalog_df[catalog_df['type'] == 'quality'].metric)
     cols_with_na_rows = [x for x in data_frame.columns if x in quality_cols]
@@ -158,11 +171,31 @@ def clean_df_for_cr(data_frame, catalog_df, blup_df=None):
     data_frame = compute_duration_metrics(data_frame)
     data_frame = remove_listed_columns(data_frame, date_cols)
 
-    # aggregate data
-    data_frame = aggregate_data(data_frame, 'cultivar')
+    # aggregate data - aggregated per cultivar & trial_id, needed for blup join
+    data_frame = aggregate_data(data_frame, ['trial_id', 'cultivar'])
 
     # correct blup metrics if they exist
     if len(blup_df) > 0:
-        data_frame = compute_blup_metrics(data_frame, blup_df, catalog_df, 'cultivar')
+        merged_df = pd.merge(data_frame,
+                             blup_df,
+                             how='left',
+                             on=['trial_id', 'cultivar'],
+                             suffixes=('', '_blup')
+                             )
+        # Replace values in the merged DataFrame
+        for col in data_frame.columns:
+            if col in ['trial_id', 'cultivar']:
+                continue  # Skip the join columns
+            blup_col = f"{col}_blup"
+            if blup_col in merged_df.columns:
+                merged_df[col] = merged_df[blup_col].combine_first(merged_df[col])
+                merged_df.drop(columns=[blup_col], inplace=True)
+        data_frame = merged_df
+
+    # remove artefacts needed for blup overriding
+    data_frame = data_frame.drop(columns=['trial_id', 'crop'], errors='ignore')
+
+    # reaggregate - if blup_df was on a different granularity
+    data_frame = aggregate_data(data_frame, ['cultivar'])
 
     return data_frame
